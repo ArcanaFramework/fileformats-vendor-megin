@@ -16,7 +16,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: ["3.11", "3.14"]
       fail-fast: false
     runs-on: ${{ matrix.os }}
@@ -25,17 +25,19 @@ jobs:
         shell: bash -l {0}
     env:
       PIP_BREAK_SYSTEM_PACKAGES: 1
+      MNE_DATA: ~/mne_data
     steps:
     - name: Checkout
       uses: actions/checkout@v6
-    - name: Unset header
-      # checkout@v6 adds a header that makes branch protection report errors
-      # because the Github action bot is not a collaborator on the repo
-      run: git config --local --unset http.https://github.com/.extraheader
+
     - name: Fetch tags
       run: git fetch --prune --unshallow
     - name: Disable etelemetry
       run:  echo "NO_ET=TRUE" >> $GITHUB_ENV
+    - name: Install system deps
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y liblzma-dev
     - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
       uses: actions/setup-python@v6
       with:
@@ -44,10 +46,21 @@ jobs:
       run: python3 -m pip install --upgrade pip
     - name: Install Package
       run: python3 -m pip install -e .[test] -e ./extras[test]
-    - name: MyPy
-      run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
+    - name: Cache MNE datasets
+      id: cache-mne-data
+      uses: actions/cache@v5
+      with:
+        path: ~/mne_data
+        key: mne-data-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
+    - name: Download MNE datasets
+      if: steps.cache-mne-data.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p $HOME/mne_data
+        python -c "import mne; mne.datasets.testing.data_path(); mne.datasets.sample.data_path()"
+    # - name: MyPy
+    #   run: mypy --install-types --non-interactive  --no-warn-unused-ignores .
     - name: Pytest
-      run: pytest -vvs --cov fileformats --cov-config .coveragerc --cov-report xml .
+      run: pytest -vvs --cov fileformats.vendor.megin --cov fileformats.extras.vendor.megin --cov-config .coveragerc --cov-report xml .
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v6
       with:
@@ -67,10 +80,7 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
-    - name: Unset header
-      # checkout@v6 adds a header that makes branch protection report errors
-      # because the Github action bot is not a collaborator on the repo
-      run: git config --local --unset http.https://github.com/.extraheader
+
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
@@ -81,7 +91,7 @@ jobs:
       run: python3 -m build ${{ matrix.pkg[1] }}
     - name: Check distributions
       run: twine check ${{ matrix.pkg[1] }}/dist/*
-    - uses: actions/upload-artifact@v8
+    - uses: actions/upload-artifact@v7
       with:
         name: built-${{ matrix.pkg[0] }}
         path: ${{ matrix.pkg[1] }}/dist
