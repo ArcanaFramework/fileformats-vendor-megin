@@ -1,5 +1,5 @@
 FileFormats-vendor-megin Extras
-===========================
+===============================
 .. image:: https://github.com/arcanaframework/fileformats-vendor-megin-extras/actions/workflows/tests.yml/badge.svg
     :target: https://github.com/arcanaframework/fileformats-vendor-megin-extras/actions/workflows/tests.yml
 .. image:: https://codecov.io/gh/arcanaframework/fileformats-vendor-megin-extras/branch/main/graph/badge.svg?token=UIS0OGPST7
