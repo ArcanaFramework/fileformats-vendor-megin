@@ -11,7 +11,7 @@ dependencies = [
     "fileformats >= 0.17.5",
     "pydra >= 1.0a9",
     "fileformats-biosig >= 0.1.0",
-    "fileformats-vendor-megin >= 0.1.0",
+    "fileformats-vendor-megin",
 ]
 license = {file = "LICENSE"}
 authors = [
