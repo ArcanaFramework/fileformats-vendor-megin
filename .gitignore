@@ -21,5 +21,6 @@ __pycache__
 *.egg-info
 ~*
 /.venv
-/fileformats/*/_version.py
+/fileformats/vendor/megin/_version.py
+/extras/fileformats/extras/vendor/megin/_version.py
 .mypy_cache

@@ -10,7 +10,7 @@ Email:
 - miaocao@swin.edu.au
 """
 
-from fileformats.biosig import Fif
+from fileformats.vendor.megin.biosig import Fif
 
 # ------------------------------
 # MEG: FIF

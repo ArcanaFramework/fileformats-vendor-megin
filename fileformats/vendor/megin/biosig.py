@@ -1,6 +1,7 @@
 import struct
 
-from fileformats.core import BinaryFile, validated_property
+from fileformats.core import validated_property
+from fileformats.generic import BinaryFile
 from fileformats.core.exceptions import FormatMismatchError
 
 from fileformats.biosig import Meg
